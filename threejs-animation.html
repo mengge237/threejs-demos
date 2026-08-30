@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js 3D Animation</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/loaders/GLTFLoader.js"></script>
+  <script>
+    // 场景、相机和渲染器设置
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // 相机位置
+    camera.position.z = 5;
+
+    // 加载3D模型
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+      'path/to/your/model.gltf', // 模型路径
+      function (gltf) {
+        scene.add(gltf.scene); // 将加载的模型添加到场景中
+        // 初始化AnimationMixer
+        let mixer = new THREE.AnimationMixer(gltf.scene);
+        gltf.animations.forEach((clip) => {
+          mixer.clipAction(clip).play();
+        });
+        // 可以在需要时保存clipAction的引用，并调用.stop(), .play(), .setEffectiveTimeScale(speed)等方法
+        animate(); // 调用动画循环函数
+      },
+      undefined,
+      function (error) {
+        console.error('An error happened', error);
+      }
+    );
+
+    const clock = new THREE.Clock(); // 创建时钟对象用于计算时间差
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (mixer) mixer.update(clock.getDelta()); // 更新动画混合器
+      renderer.render(scene, camera); // 渲染场景
+    }
+  </script>
+</body>
+</html>
